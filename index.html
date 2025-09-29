@@ -1,3 +1,9 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Nueva Birthday Slide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 <style>
   :root{
     --bg: url('https://iili.io/KGfZ9hQ.png');
@@ -107,3 +113,78 @@
     text-shadow:none;
   }
 </style>
+
+</head>
+<body>
+  <div class="stage">
+    <div class="overlay">
+      <h1 class="title" id="title" hidden>Happy Birthday!</h1>
+      <p class="date" id="date" hidden></p>
+      <div class="list" id="list" hidden><ul class="names" id="names"></ul></div>
+      <div class="empty" id="empty" hidden>No birthdays today.<br/>We’ll celebrate again soon!</div>
+    </div>
+  </div>
+
+<script>
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCKgaZexTRAqU_kR0nZuLvPO7Pk7MAnOXB7Uk552LbbnzBsBpqIcWB4sxW6LR7_cIEcxTajkgQ1Zfe/pub?gid=301523703&single=true&output=csv";
+
+  function todayMMDD() {
+    const la = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}));
+    return `${String(la.getMonth()+1).padStart(2,"0")}/${String(la.getDate()).padStart(2,"0")}`;
+  }
+  function formatTodayLong() {
+    return new Date().toLocaleDateString('en-US',{timeZone:'America/Los_Angeles',month:'long',day:'numeric'});
+  }
+  function parseCSV(text){
+    return text.trim().split(/\r?\n/).map(r=>r.split(","));
+  }
+  function normalizeHeader(h){
+    return h.trim().toLowerCase().replace(/[\s_]+/g,"");
+  }
+
+  async function init(){
+    const res = await fetch(CSV_URL);
+    const csv = await res.text();
+    const rows = parseCSV(csv);
+    if(!rows.length) return;
+
+    const headers = rows[0].map(normalizeHeader);
+    const data = rows.slice(1).map(r=>{
+      const obj={};
+      headers.forEach((h,i)=>obj[h]=(r[i]||"").trim());
+      return obj;
+    });
+
+    // Try to guess name/date cols
+    const nameKey = headers.find(h=>h.includes("name")||h.includes("student"));
+    const dateKey = headers.find(h=>h.includes("birth")||h==="date");
+    console.log("Detected columns:", headers, "Using:", nameKey, dateKey);
+
+    const today = todayMMDD();
+    const todays = data.filter(r=> (r[dateKey]||"")===today);
+
+    const titleEl=document.getElementById("title");
+    const dateEl=document.getElementById("date");
+    const listEl=document.getElementById("list");
+    const namesEl=document.getElementById("names");
+    const emptyEl=document.getElementById("empty");
+
+    if(todays.length===0){
+      titleEl.hidden=true;dateEl.hidden=true;listEl.hidden=true;emptyEl.hidden=false;
+    }else{
+      titleEl.hidden=false;dateEl.hidden=false;listEl.hidden=false;emptyEl.hidden=true;
+      dateEl.textContent=formatTodayLong();
+      namesEl.innerHTML="";
+      todays.forEach(r=>{
+        const li=document.createElement("li");
+        li.textContent=r[nameKey]||"";
+        namesEl.appendChild(li);
+      });
+      if(todays.length>16) namesEl.classList.add("cols-2");
+      if(todays.length>32) namesEl.classList.add("cols-3");
+    }
+  }
+  init();
+</script>
+</body>
+</html>
