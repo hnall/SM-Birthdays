@@ -1,0 +1,316 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Nueva Birthday Slide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --bg: url('https://bbk12e1-cdn.myschoolcdn.com/temp/b7vdxojsbz038ricsa74165vyky037i5.png');
+    --text: #fff; 
+    --subtext: #fff; 
+    --shadow: rgba(0,0,0,0.2);
+    --max-width: 1920px;
+    --max-height: 1080px;
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    background: #000;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  }
+  .stage {
+    position: relative;
+    margin: 0 auto;
+    width: 100vw;
+    height: 56.25vw;
+    max-width: var(--max-width);
+    max-height: var(--max-height);
+    background-image: var(--bg);
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 10px 40px var(--shadow);
+    overflow: hidden;
+  }
+  @media (min-aspect-ratio: 16/9) {
+    .stage { 
+      width: calc(100vh * 16 / 9);
+      height: 100vh;
+    }
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(0.3px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 4.5vh 4vw;
+    box-sizing: border-box;
+  }
+
+  .title {
+    margin: 0;
+    color: var(--text);
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-shadow: none;
+    font-size: clamp(48px, 8vh, 96px); /* bigger */
+    line-height: 1.1;
+  }
+  .date {
+    margin: 0.6vh 0 3vh;
+    color: var(--subtext);
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-shadow: none;
+    font-size: clamp(32px, 5vh, 60px); /* bigger */
+    line-height: 1.2;
+  }
+
+  .list {
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    margin-top: 4vh;
+    width: 100%;
+    color: #fff;
+    text-align: center;
+  }
+
+  .names {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    column-count: 1;
+    column-gap: 4vw;
+  }
+
+  .names li {
+    font-size: clamp(32px, 5.5vh, 64px); /* bigger */
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    margin: 0.6em 0;
+    break-inside: avoid;
+  }
+
+  .cols-2 {
+    column-count: 2 !important;
+  }
+  .cols-3 {
+    column-count: 3 !important;
+  }
+
+  .empty {
+    width: 88%;
+    max-width: 1200px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 18px;
+    padding: 6vh 5vw;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    text-align: center;
+    color: #001F5E;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.25;
+    font-size: clamp(28px, 4vh, 52px); /* bigger */
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 2vh;
+    width: 100%;
+    text-align: center;
+    color: rgba(0,0,0,0.5);
+    font-size: clamp(14px, 2vh, 20px); /* bigger */
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.9);
+  }
+</style>
+
+</head>
+<body>
+  <div class="stage">
+    <div class="overlay">
+      <h1 class="title" id="title" hidden>Happy Birthday!</h1>
+      <p class="date" id="date" hidden></p>
+
+      <div class="list" id="list" hidden>
+        <ul class="names" id="names"></ul>
+      </div>
+
+      <div class="empty" id="empty" hidden>
+        No birthdays today.<br/>
+        We’ll celebrate again soon!
+      </div>
+
+      <div class="footer" id="footer"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ====== CONFIGURE THESE ====== */
+    // 1) Point this to your CSV (must allow CORS if on a different domain)
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT6YCrifHIPmky6PwD75cCwwTmArftuJXErcRQuqJYoc4WpsD1lxUKNr5C6QuaqiF_RXmbPoLDdrgWv/pub?output=csv';
+    // 2) Column headers in your CSV:
+    const NAME_COL = 'Name';                // e.g., "Taryn Grogan"
+    const DATE_COL = 'Birth_Date_(MM/DD)';  // e.g., "09/25"
+
+    // Optional: paste CSV below if you prefer not to fetch (leave empty to ignore)
+  </script>
+
+ 
+</script>
+
+  <script>
+    // Utility: format today's date in America/Los_Angeles (e.g., "September 25")
+    function formatTodayLong() {
+      const now = new Date();
+      const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric' });
+      return fmt.format(now);
+    }
+
+    // Utility: today's month/day as MM/DD (zero-padded) in LA timezone
+    function todayMMDD() {
+      const now = new Date();
+      // Convert to LA components via toLocaleString
+      const la = new Date(now.toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+      const m = (la.getMonth() + 1).toString().padStart(2, '0');
+      const d = la.getDate().toString().padStart(2, '0');
+      return `${m}/${d}`;
+    }
+
+    // Lightweight CSV parser supporting quoted fields with commas
+    function parseCSV(text) {
+      const rows = [];
+      let i = 0, field = '', row = [], inQuotes = false;
+
+      while (i < text.length) {
+        const c = text[i];
+
+        if (inQuotes) {
+          if (c === '"') {
+            if (text[i+1] === '"') { field += '"'; i += 2; continue; }
+            inQuotes = false; i++; continue;
+          } else { field += c; i++; continue; }
+        } else {
+          if (c === '"') { inQuotes = true; i++; continue; }
+          if (c === ',') { row.push(field); field = ''; i++; continue; }
+          if (c === '\r') { i++; continue; }
+          if (c === '\n') { row.push(field); rows.push(row); field=''; row=[]; i++; continue; }
+          field += c; i++; continue;
+        }
+      }
+      // Last field
+      if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+      return rows;
+    }
+
+    function toObjects(rows) {
+      if (!rows.length) return [];
+      const header = rows[0].map(h => h.trim());
+      const idx = {};
+      header.forEach((h, i) => idx[h] = i);
+      const out = [];
+      for (let r = 1; r < rows.length; r++) {
+        const raw = rows[r];
+        if (raw.every(cell => (cell || '').trim() === '')) continue; // skip blank lines
+        const obj = {};
+        header.forEach((h, i) => obj[h] = (raw[i] ?? '').trim());
+        out.push(obj);
+      }
+      return { data: out, headerIndex: idx };
+    }
+
+    async function getCSVText() {
+      // Try URL first if provided
+      if (CSV_URL && CSV_URL !== 'REPLACE_WITH_YOUR_CSV_URL.csv') {
+        try {
+          const res = await fetch(CSV_URL, { cache: 'no-store' });
+          if (res.ok) return await res.text();
+          console.warn('CSV fetch failed, falling back to inline CSV. Status:', res.status);
+        } catch (e) {
+          console.warn('CSV fetch error, falling back to inline CSV:', e);
+        }
+      }
+      // Fallback to inline CSV
+      const inline = document.getElementById('csv-inline')?.textContent.trim();
+      return inline || '';
+    }
+
+    function render(birthdayPeople) {
+      const titleEl = document.getElementById('title');
+      const dateEl = document.getElementById('date');
+      const listEl = document.getElementById('list');
+      const namesEl = document.getElementById('names');
+      const emptyEl = document.getElementById('empty');
+      const footerEl = document.getElementById('footer');
+
+      // Footer (optional debug/info)
+      footerEl.textContent = '';
+
+      if (birthdayPeople.length === 0) {
+        // No birthdays: show only the empty message
+        titleEl.hidden = true;
+        dateEl.hidden = true;
+        listEl.hidden = true;
+        emptyEl.hidden = false;
+        return;
+      }
+
+      // Birthdays exist
+      titleEl.hidden = false;
+      dateEl.hidden = false;
+      listEl.hidden = false;
+      emptyEl.hidden = true;
+
+      dateEl.textContent = formatTodayLong();
+
+      // Populate names (no dates next to each per your spec)
+      namesEl.innerHTML = '';
+      birthdayPeople.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = p[NAME_COL] || '';
+        namesEl.appendChild(li);
+      });
+
+      // Adjust columns & size for long lists
+      const n = birthdayPeople.length;
+      namesEl.classList.remove('cols-2','cols-3','size-lg','size-md','size-sm');
+
+      if (n <= 16) {
+        namesEl.classList.add('size-lg'); // big
+      } else if (n <= 32) {
+        namesEl.classList.add('cols-2', 'size-md'); // 2 columns, medium
+      } else {
+        namesEl.classList.add('cols-3', 'size-sm'); // 3 columns, small
+      }
+    }
+
+    (async function init(){
+      const today = todayMMDD();
+      const csvText = await getCSVText();
+      if (!csvText) {
+        console.error('No CSV data found. Set CSV_URL or paste CSV into #csv-inline.');
+        render([]); // show empty state
+        return;
+      }
+
+      const rows = parseCSV(csvText);
+      const { data } = toObjects(rows);
+
+      // Filter by today's MM/DD; preserve original order from CSV
+      const todays = data.filter(row => (row[DATE_COL] || '').trim() === today);
+      render(todays);
+    })();
+  </script>
+</body>
+</html>
