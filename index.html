@@ -4,187 +4,215 @@
   <meta charset="utf-8" />
   <title>Nueva Birthday Slide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-<style>
-  :root{
-    --bg: url('https://iili.io/KGfZ9hQ.png');
-    --text: #fff; 
-    --subtext: #fff; 
-    --max-width: 1920px;
-    --max-height: 1080px;
-  }
-  html, body {
-    height:100%;
-    margin:0;
-    background:#000;
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
-  }
-  .stage {
-    position:relative;
-    margin:0 auto;
-    width:100vw;
-    height:56.25vw;
-    max-width:var(--max-width);
-    max-height:var(--max-height);
-    background-image:var(--bg);
-    background-size:cover;
-    background-position:center;
-    overflow:hidden;
-  }
-  @media (min-aspect-ratio:16/9){
-    .stage{width:calc(100vh * 16 / 9);height:100vh;}
-  }
+  <style>
+    :root {
+      --bg: url('https://iili.io/KGfZ9hQ.png');
+      --text: #fff;
+      --subtext: #fff;
+      --max-width: 1920px;
+      --max-height: 1080px;
+    }
 
-  .overlay {
-    position:absolute;
-    inset:0;
-    display:flex;
-    flex-direction:column;
-    padding:4.5vh 4vw;
-    box-sizing:border-box;
-  }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #000;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
 
-  /* Top zone (title + date) */
-  .header-block {
-    flex:0 0 auto;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    margin-bottom:2vh;
-  }
-  .title {
-    margin:0;
-    color:var(--text);
-    text-align:center;
-    font-weight:800;
-    font-size:clamp(48px,8vh,96px);
-    text-shadow:none;
-  }
-  .date {
-    margin:1vh 0 0;
-    color:var(--subtext);
-    text-align:center;
-    font-weight:700;
-    font-size:clamp(32px,5vh,60px);
-    text-shadow:none;
-  }
+    .stage {
+      position: relative;
+      margin: 0 auto;
+      width: 100vw;
+      height: 56.25vw;
+      max-width: var(--max-width);
+      max-height: var(--max-height);
+      background-image: var(--bg);
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
 
-  /* Middle zone (list or empty) centered vertically */
-  .content-block {
-    flex:1;
-    display:flex;
-    align-items:center;   /* vertical centering */
-    justify-content:center; /* horizontal centering */
-    width:100%;
-  }
+    @media (min-aspect-ratio: 16/9) {
+      .stage {
+        width: calc(100vh * 16 / 9);
+        height: 100vh;
+      }
+    }
 
-  .list {
-    width:100%;
-    color:#fff;
-    text-align:center;
-  }
-  .names {
-    list-style:none;
-    margin:0;
-    padding:0;
-    text-align:center;
-    column-count:1;
-    column-gap:4vw;
-  }
-  .names li {
-    font-size:clamp(32px,5.5vh,64px);
-    font-weight:700;
-    color:#fff;
-    margin:0.6em 0;
-    break-inside:avoid;
-    text-shadow:none;
-  }
-  .cols-2{column-count:2!important;}
-  .cols-3{column-count:3!important;}
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 4.5vh 4vw;
+      box-sizing: border-box;
+    }
 
-  .empty {
-    max-width:1200px;
-    background:rgba(255,255,255,0.9);
-    border-radius:18px;
-    padding:6vh 5vw;
-    text-align:center;
-    color:#001F5E;
-    font-weight:700;
-    font-size:clamp(28px,4vh,52px);
-    text-shadow:none;
-  }
-</style>
+    .header-block {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      /* margin-bottom to separate from content block if desired */
+      margin-bottom: 2vh;
+    }
 
+    .title {
+      margin: 0;
+      color: var(--text);
+      text-align: center;
+      font-weight: 800;
+      font-size: clamp(48px, 8vh, 96px);
+      text-shadow: none;
+    }
+
+    .date {
+      margin: 1vh 0 0;
+      color: var(--subtext);
+      text-align: center;
+      font-weight: 700;
+      font-size: clamp(32px, 5vh, 60px);
+      text-shadow: none;
+    }
+
+    .content-block {
+      flex: 1;
+      display: flex;
+      align-items: center;       /* vertical centering */
+      justify-content: center;   /* horizontal centering */
+      width: 100%;
+    }
+
+    .list {
+      width: 100%;
+      color: #fff;
+      text-align: center;
+    }
+
+    .names {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      column-count: 1;
+      column-gap: 4vw;
+    }
+
+    .names li {
+      font-size: clamp(32px, 5.5vh, 64px);
+      font-weight: 700;
+      color: #fff;
+      margin: 0.6em 0;
+      break-inside: avoid;
+      text-shadow: none;
+    }
+
+    .cols-2 { column-count: 2 !important; }
+    .cols-3 { column-count: 3 !important; }
+
+    .empty {
+      max-width: 1200px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 18px;
+      padding: 6vh 5vw;
+      text-align: center;
+      color: #001F5E;
+      font-weight: 700;
+      font-size: clamp(28px, 4vh, 52px);
+      text-shadow: none;
+    }
+  </style>
 </head>
 <body>
   <div class="stage">
     <div class="overlay">
-      <h1 class="title" id="title" hidden>Happy Birthday!</h1>
-      <p class="date" id="date" hidden></p>
-      <div class="list" id="list" hidden><ul class="names" id="names"></ul></div>
-      <div class="empty" id="empty" hidden>No birthdays today.<br/>We’ll celebrate again soon!</div>
+      <div class="header-block">
+        <h1 class="title" id="title" hidden>Happy Birthday!</h1>
+        <p class="date" id="date" hidden></p>
+      </div>
+
+      <div class="content-block">
+        <div class="list" id="list" hidden>
+          <ul class="names" id="names"></ul>
+        </div>
+        <div class="empty" id="empty" hidden>
+          No birthdays today.<br/>We’ll celebrate again soon!
+        </div>
+      </div>
     </div>
   </div>
 
-<script>
-  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCKgaZexTRAqU_kR0nZuLvPO7Pk7MAnOXB7Uk552LbbnzBsBpqIcWB4sxW6LR7_cIEcxTajkgQ1Zfe/pub?gid=301523703&single=true&output=csv";
+  <script>
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCKgaZexTRAqU_kR0nZuLvPO7Pk7MAnOXB7Uk552LbbnzBsBpqIcWB4sxW6LR7_cIEcxTajkgQ1Zfe/pub?gid=301523703&single=true&output=csv";
 
-  function todayMMDD() {
-    const la = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}));
-    return `${String(la.getMonth()+1).padStart(2,"0")}/${String(la.getDate()).padStart(2,"0")}`;
-  }
-  function formatTodayLong() {
-    return new Date().toLocaleDateString('en-US',{timeZone:'America/Los_Angeles',month:'long',day:'numeric'});
-  }
-  function parseCSV(text){
-    return text.trim().split(/\r?\n/).map(r=>r.split(","));
-  }
-  function normalizeHeader(h){
-    return h.trim().toLowerCase().replace(/[\s_]+/g,"");
-  }
-
-  async function init(){
-    const res = await fetch(CSV_URL);
-    const csv = await res.text();
-    const rows = parseCSV(csv);
-    if(!rows.length) return;
-
-    const headers = rows[0].map(normalizeHeader);
-    const data = rows.slice(1).map(r=>{
-      const obj={};
-      headers.forEach((h,i)=>obj[h]=(r[i]||"").trim());
-      return obj;
-    });
-
-    // Try to guess name/date cols
-    const nameKey = headers.find(h=>h.includes("name")||h.includes("student"));
-    const dateKey = headers.find(h=>h.includes("birth")||h==="date");
-    console.log("Detected columns:", headers, "Using:", nameKey, dateKey);
-
-    const today = todayMMDD();
-    const todays = data.filter(r=> (r[dateKey]||"")===today);
-
-    const titleEl=document.getElementById("title");
-    const dateEl=document.getElementById("date");
-    const listEl=document.getElementById("list");
-    const namesEl=document.getElementById("names");
-    const emptyEl=document.getElementById("empty");
-
-    if(todays.length===0){
-      titleEl.hidden=true;dateEl.hidden=true;listEl.hidden=true;emptyEl.hidden=false;
-    }else{
-      titleEl.hidden=false;dateEl.hidden=false;listEl.hidden=false;emptyEl.hidden=true;
-      dateEl.textContent=formatTodayLong();
-      namesEl.innerHTML="";
-      todays.forEach(r=>{
-        const li=document.createElement("li");
-        li.textContent=r[nameKey]||"";
-        namesEl.appendChild(li);
-      });
-      if(todays.length>16) namesEl.classList.add("cols-2");
-      if(todays.length>32) namesEl.classList.add("cols-3");
+    function todayMMDD() {
+      const la = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
+      return `${String(la.getMonth() + 1).padStart(2, "0")}/${String(la.getDate()).padStart(2, "0")}`;
     }
-  }
-  init();
-</script>
+
+    function formatTodayLong() {
+      return new Date().toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric' });
+    }
+
+    function parseCSV(text) {
+      return text.trim().split(/\r?\n/).map(r => r.split(","));
+    }
+
+    function normalizeHeader(h) {
+      return h.trim().toLowerCase().replace(/[\s_]+/g, "");
+    }
+
+    async function init() {
+      const res = await fetch(CSV_URL);
+      const csv = await res.text();
+      const rows = parseCSV(csv);
+      if (!rows.length) return;
+
+      const headers = rows[0].map(normalizeHeader);
+      const data = rows.slice(1).map(r => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = (r[i] || "").trim());
+        return obj;
+      });
+
+      const nameKey = headers.find(h => h.includes("name") || h.includes("student"));
+      const dateKey = headers.find(h => h.includes("birth") || h === "date");
+      console.log("Detected columns:", headers, "Using:", nameKey, dateKey);
+
+      const today = todayMMDD();
+      const todays = data.filter(r => (r[dateKey] || "") === today);
+
+      const titleEl = document.getElementById("title");
+      const dateEl = document.getElementById("date");
+      const listEl = document.getElementById("list");
+      const namesEl = document.getElementById("names");
+      const emptyEl = document.getElementById("empty");
+
+      if (todays.length === 0) {
+        titleEl.hidden = true;
+        dateEl.hidden = true;
+        listEl.hidden = true;
+        emptyEl.hidden = false;
+      } else {
+        titleEl.hidden = false;
+        dateEl.hidden = false;
+        listEl.hidden = false;
+        emptyEl.hidden = true;
+
+        dateEl.textContent = formatTodayLong();
+        namesEl.innerHTML = "";
+        todays.forEach(r => {
+          const li = document.createElement("li");
+          li.textContent = r[nameKey] || "";
+          namesEl.appendChild(li);
+        });
+        if (todays.length > 16) namesEl.classList.add("cols-2");
+        if (todays.length > 32) namesEl.classList.add("cols-3");
+      }
+    }
+
+    init();
+  </script>
 </body>
 </html>
