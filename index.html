@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Nueva Birthday Slide</title>
+  <title>Birthday Slide - Upper School</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
-      --bg: url('https://iili.io/KGfZ9hQ.png');
+      --bg: url('https://resources.finalsite.net/images/f_auto,q_auto/v1759264057/nuevaschoolorg/rpiggqhgnubricdf395m/BirthdayBackground.png');
       --text: #fff;
       --subtext: #fff;
       --max-width: 1920px;
@@ -18,6 +18,7 @@
       margin: 0;
       background: #000;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: #fff;
     }
 
     .stage {
@@ -31,60 +32,39 @@
       background-size: cover;
       background-position: center;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
 
     @media (min-aspect-ratio: 16/9) {
       .stage { width: calc(100vh * 16 / 9); height: 100vh; }
     }
 
-    .overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between; /* keeps footer pinned at bottom */
-      padding: 4.5vh 4vw;
-      box-sizing: border-box;
-    }
-
-    .header-block {
-      flex: 0 0 auto;
+    /* Center title + date + list as one block */
+    .center-block {
+      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      text-align: center;
     }
 
     .title {
       margin: 0;
       color: var(--text);
-      text-align: center;
       font-weight: 800;
       font-size: clamp(48px, 8vh, 96px);
       text-shadow: none;
     }
 
     .date {
-      margin: 1vh 0 0;
+      margin: 1vh 0 4vh;
       color: var(--subtext);
-      text-align: center;
       font-weight: 700;
       font-size: clamp(32px, 5vh, 60px);
       text-shadow: none;
-    }
-
-    .content-block {
-      flex: 1;
-      display: flex;
-      align-items: flex-start;  /* push upward */
-      justify-content: center;
-      width: 100%;
-      padding-top: 8vh;         /* adjust this number for how high you want it */
-    }
-
-    .list {
-      width: 100%;
-      color: #fff;
-      text-align: center;
     }
 
     .names {
@@ -97,129 +77,149 @@
     }
 
     .names li {
-      font-size: clamp(32px, 5.5vh, 64px);
+      font-size: clamp(32px, 4.5vh, 56px);
       font-weight: 700;
-      color: #fff;
       margin: 0.6em 0;
       break-inside: avoid;
       text-shadow: none;
     }
 
-    .cols-2 { column-count: 2 !important; }
-    .cols-3 { column-count: 3 !important; }
-
-    .empty {
-      max-width: 1200px;
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 18px;
-      padding: 6vh 5vw;
-      text-align: center;
-      color: #001F5E;
-      font-weight: 700;
-      font-size: clamp(28px, 4vh, 52px);
-      text-shadow: none;
-    }
-
     .footer {
-      flex: 0 0 auto;
       text-align: center;
       color: #fff;
       font-size: clamp(12px, 1.5vh, 16px);
       opacity: 0.85;
-      margin-top: 2vh;
+      margin: 2vh 0;
     }
   </style>
 </head>
 <body>
   <div class="stage">
-    <div class="overlay">
-      <div class="header-block">
-        <h1 class="title" id="title" hidden>Happy Birthday!</h1>
-        <p class="date" id="date" hidden></p>
-      </div>
-
-      <div class="content-block">
-        <div class="list" id="list" hidden>
-          <ul class="names" id="names"></ul>
-        </div>
-        <div class="empty" id="empty" hidden>
-          No birthdays today.<br/>We’ll celebrate again soon!
-        </div>
-      </div>
-
-      <div class="footer">
-        To opt out of birthday sharing, email communications@nuevaschool.org
-      </div>
+    <div class="center-block">
+      <h1 class="title" id="title" hidden>Happy Birthday, Upper School!</h1>
+      <p class="date" id="date" hidden></p>
+      <ul class="names" id="names"></ul>
+    </div>
+    <div class="footer">
+      Email hnall@nuevaschool.org for corrections or to opt out of birthday sharing
     </div>
   </div>
 
   <script>
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCKgaZexTRAqU_kR0nZuLvPO7Pk7MAnOXB7Uk552LbbnzBsBpqIcWB4sxW6LR7_cIEcxTajkgQ1Zfe/pub?gid=301523703&single=true&output=csv";
+    const REDIRECT_IMAGE_URL = "https://resources.finalsite.net/images/f_auto,q_auto,t_image_size_6/v1759264059/nuevaschoolorg/xsbsbt1z8yeiuvpcoemz/US_REDIRECT_IMG.jpg";
 
     function todayMMDD() {
       const la = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-      return `${String(la.getMonth() + 1).padStart(2, "0")}/${String(la.getDate()).padStart(2, "0")}`;
+      return `${String(la.getMonth()+1).padStart(2,"0")}/${String(la.getDate()).padStart(2,"0")}`;
     }
 
     function formatTodayLong() {
-      return new Date().toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric' });
+      return new Date().toLocaleDateString('en-US', {
+        timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric'
+      });
     }
 
+    // Robust CSV parser (handles quotes and commas inside fields)
     function parseCSV(text) {
-      return text.trim().split(/\r?\n/).map(r => r.split(","));
+      const rows = [];
+      let i = 0, field = '', row = [], inQuotes = false;
+      while (i < text.length) {
+        const c = text[i];
+        if (inQuotes) {
+          if (c === '"') {
+            if (text[i+1] === '"') { field += '"'; i += 2; continue; }
+            inQuotes = false; i++; continue;
+          } else { field += c; i++; continue; }
+        } else {
+          if (c === '"') { inQuotes = true; i++; continue; }
+          if (c === ',') { row.push(field); field = ''; i++; continue; }
+          if (c === '\r') { i++; continue; }
+          if (c === '\n') { row.push(field); rows.push(row); field=''; row=[]; i++; continue; }
+          field += c; i++; continue;
+        }
+      }
+      if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+      return rows;
     }
 
+    // Normalize header: lowercase, remove spaces/underscores/slashes
     function normalizeHeader(h) {
-      return h.trim().toLowerCase().replace(/[\s_]+/g, "");
+      return h.replace(/^\uFEFF/, '').trim().toLowerCase().replace(/[\s_/]+/g, "");
+    }
+
+    // Normalize dates like "6/2" -> "06/02"
+    function normalizeMMDD(str) {
+      if (!str) return "";
+      const parts = String(str).split("/");
+      if (parts.length !== 2) return "";
+      const m = parts[0].trim().padStart(2,"0");
+      const d = parts[1].trim().padStart(2,"0");
+      return `${m}/${d}`;
     }
 
     async function init() {
-      const res = await fetch(CSV_URL);
-      const csv = await res.text();
-      const rows = parseCSV(csv);
-      if (!rows.length) return;
+      let csvText = "";
+      try {
+        const res = await fetch(CSV_URL, { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        csvText = await res.text();
+      } catch (e) {
+        console.error("CSV fetch failed:", e);
+        window.location.href = REDIRECT_IMAGE_URL;
+        return;
+      }
+
+      let rows = [];
+      try {
+        rows = parseCSV(csvText);
+      } catch (e) {
+        console.error("CSV parse failed:", e);
+        window.location.href = REDIRECT_IMAGE_URL;
+        return;
+      }
+      if (!rows.length) { window.location.href = REDIRECT_IMAGE_URL; return; }
 
       const headers = rows[0].map(normalizeHeader);
-      const data = rows.slice(1).map(r => {
-        const obj = {};
-        headers.forEach((h, i) => obj[h] = (r[i] || "").trim());
-        return obj;
-      });
+      // Expecting: "name", "titlegrade", "birthday"
+      const nameIdx  = headers.indexOf("name");
+      const gradeIdx = headers.indexOf("titlegrade");
+      const dateIdx  = headers.indexOf("birthday");
+      if (nameIdx < 0 || gradeIdx < 0 || dateIdx < 0) {
+        console.error("Missing expected headers. Got:", headers);
+        window.location.href = REDIRECT_IMAGE_URL;
+        return;
+      }
 
-      const nameKey = headers.find(h => h.includes("name") || h.includes("student"));
-      const dateKey = headers.find(h => h.includes("birth") || h === "date");
-      console.log("Detected columns:", headers, "Using:", nameKey, dateKey);
+      const data = rows.slice(1).map(r => ({
+        name: (r[nameIdx]  || "").trim(),
+        grade: (r[gradeIdx] || "").trim(),
+        date: (r[dateIdx]  || "").trim()
+      }));
 
       const today = todayMMDD();
-      const todays = data.filter(r => (r[dateKey] || "") === today);
+      const todays = data.filter(r => normalizeMMDD(r.date) === today);
 
-      const titleEl = document.getElementById("title");
-      const dateEl = document.getElementById("date");
-      const listEl = document.getElementById("list");
-      const namesEl = document.getElementById("names");
-      const emptyEl = document.getElementById("empty");
-
-      if (todays.length === 0) {
-        titleEl.hidden = true;
-        dateEl.hidden = true;
-        listEl.hidden = true;
-        emptyEl.hidden = false;
-      } else {
-        titleEl.hidden = false;
-        dateEl.hidden = false;
-        listEl.hidden = false;
-        emptyEl.hidden = true;
-
-        dateEl.textContent = formatTodayLong();
-        namesEl.innerHTML = "";
-        todays.forEach(r => {
-          const li = document.createElement("li");
-          li.textContent = r[nameKey] || "";
-          namesEl.appendChild(li);
-        });
-        if (todays.length > 16) namesEl.classList.add("cols-2");
-        if (todays.length > 32) namesEl.classList.add("cols-3");
+      if (!todays.length) {
+        window.location.href = REDIRECT_IMAGE_URL;
+        return;
       }
+
+      // Render
+      const titleEl = document.getElementById("title");
+      const dateEl  = document.getElementById("date");
+      const namesEl = document.getElementById("names");
+
+      titleEl.hidden = false;
+      dateEl.hidden = false;
+      dateEl.textContent = formatTodayLong();
+
+      namesEl.innerHTML = "";
+      todays.forEach(r => {
+        const li = document.createElement("li");
+        li.textContent = `${r.name} - ${r.grade}`;
+        namesEl.appendChild(li);
+      });
     }
 
     init();
