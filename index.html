@@ -8,9 +8,9 @@
     :root {
       --bg: url('https://resources.finalsite.net/images/f_auto,q_auto/v1759264057/nuevaschoolorg/rpiggqhgnubricdf395m/BirthdayBackground.png');
       --text: #fff;
-      --subtext: #fff;
       --max-width: 1920px;
       --max-height: 1080px;
+      --scroll-time: 40s;
     }
 
     html, body {
@@ -19,6 +19,7 @@
       background: #000;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       color: #fff;
+      overflow: hidden;
     }
 
     .stage {
@@ -31,7 +32,6 @@
       background-image: var(--bg);
       background-size: cover;
       background-position: center;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -41,7 +41,6 @@
       .stage { width: calc(100vh * 16 / 9); height: 100vh; }
     }
 
-    /* Center title + date + list as one block */
     .center-block {
       flex: 1;
       display: flex;
@@ -49,22 +48,34 @@
       align-items: center;
       justify-content: center;
       text-align: center;
+      overflow: hidden;
     }
 
     .title {
-      margin: 0;
+      margin: 1vh 0 3vh;
       color: var(--text);
       font-weight: 800;
       font-size: clamp(48px, 8vh, 96px);
-      text-shadow: none;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
     }
 
-    .date {
-      margin: 1vh 0 4vh;
-      color: var(--subtext);
-      font-weight: 700;
-      font-size: clamp(32px, 5vh, 60px);
-      text-shadow: none;
+    .scroll-container {
+      height: 45vh;
+      overflow: hidden;
+      position: relative;
+      mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+    }
+
+    .scroll-content {
+      display: flex;
+      flex-direction: column;
+      animation: scrollLoop var(--scroll-time) linear infinite;
+    }
+
+    @keyframes scrollLoop {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-50%); }
     }
 
     .names {
@@ -72,16 +83,22 @@
       margin: 0;
       padding: 0;
       text-align: center;
-      column-count: 1;
-      column-gap: 4vw;
+      line-height: 1.2;
     }
 
-    .names li {
-      font-size: clamp(32px, 4.5vh, 56px);
+    .line {
+      display: block;
+      font-size: clamp(28px, 3.5vh, 48px);
       font-weight: 700;
-      margin: 0.6em 0;
-      break-inside: avoid;
-      text-shadow: none;
+      margin: 0.5em 0;
+      white-space: nowrap;
+    }
+
+    .date-line {
+      font-size: clamp(32px, 5vh, 60px);
+      font-weight: 800;
+      margin: 1em 0 0.3em;
+      display: block;
     }
 
     .footer {
@@ -96,9 +113,12 @@
 <body>
   <div class="stage">
     <div class="center-block">
-      <h1 class="title" id="title" hidden>Happy Birthday, Upper School!</h1>
-      <p class="date" id="date" hidden></p>
-      <ul class="names" id="names"></ul>
+      <h1 class="title" id="title">Happy Birthday, Upper School!</h1>
+      <div class="scroll-container">
+        <div class="scroll-content" id="scrollContent">
+          <div class="names" id="names"></div>
+        </div>
+      </div>
     </div>
     <div class="footer">
       Email hnall@nuevaschool.org for corrections or to opt out of birthday sharing
@@ -109,18 +129,15 @@
     const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSCKgaZexTRAqU_kR0nZuLvPO7Pk7MAnOXB7Uk552LbbnzBsBpqIcWB4sxW6LR7_cIEcxTajkgQ1Zfe/pub?gid=301523703&single=true&output=csv";
     const REDIRECT_IMAGE_URL = "https://resources.finalsite.net/images/f_auto,q_auto,t_image_size_6/v1759264059/nuevaschoolorg/xsbsbt1z8yeiuvpcoemz/US_REDIRECT_IMG.jpg";
 
-    function todayMMDD() {
-      const la = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' }));
-      return `${String(la.getMonth()+1).padStart(2,"0")}/${String(la.getDate()).padStart(2,"0")}`;
+    function normalizeMMDD(str) {
+      if (!str) return "";
+      const parts = String(str).split("/");
+      if (parts.length !== 2) return "";
+      const m = parts[0].trim().padStart(2,"0");
+      const d = parts[1].trim().padStart(2,"0");
+      return `${m}/${d}`;
     }
 
-    function formatTodayLong() {
-      return new Date().toLocaleDateString('en-US', {
-        timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric'
-      });
-    }
-
-    // Robust CSV parser (handles quotes and commas inside fields)
     function parseCSV(text) {
       const rows = [];
       let i = 0, field = '', row = [], inQuotes = false;
@@ -143,19 +160,19 @@
       return rows;
     }
 
-    // Normalize header: lowercase, remove spaces/underscores/slashes
     function normalizeHeader(h) {
       return h.replace(/^\uFEFF/, '').trim().toLowerCase().replace(/[\s_/]+/g, "");
     }
 
-    // Normalize dates like "6/2" -> "06/02"
-    function normalizeMMDD(str) {
-      if (!str) return "";
-      const parts = String(str).split("/");
-      if (parts.length !== 2) return "";
-      const m = parts[0].trim().padStart(2,"0");
-      const d = parts[1].trim().padStart(2,"0");
-      return `${m}/${d}`;
+    function getRollingWeek() {
+      const today = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'}));
+      const dates = [];
+      for (let i=0; i<7; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        dates.push(d);
+      }
+      return dates;
     }
 
     async function init() {
@@ -181,7 +198,6 @@
       if (!rows.length) { window.location.href = REDIRECT_IMAGE_URL; return; }
 
       const headers = rows[0].map(normalizeHeader);
-      // Expecting: "name", "titlegrade", "birthday"
       const nameIdx  = headers.indexOf("name");
       const gradeIdx = headers.indexOf("titlegrade");
       const dateIdx  = headers.indexOf("birthday");
@@ -194,32 +210,65 @@
       const data = rows.slice(1).map(r => ({
         name: (r[nameIdx]  || "").trim(),
         grade: (r[gradeIdx] || "").trim(),
-        date: (r[dateIdx]  || "").trim()
+        date: normalizeMMDD(r[dateIdx])
       }));
 
-      const today = todayMMDD();
-      const todays = data.filter(r => normalizeMMDD(r.date) === today);
+      const dates = getRollingWeek();
+      const todayStr = normalizeMMDD(`${dates[0].getMonth()+1}/${dates[0].getDate()}`);
+      const grouped = [];
 
-      if (!todays.length) {
+      dates.forEach(d => {
+        const mmdd = `${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`;
+        const matches = data.filter(r => r.date === mmdd);
+        if (matches.length) {
+          const labelBase = d.toLocaleDateString('en-US', {
+            timeZone:'America/Los_Angeles',
+            weekday:'long',
+            month:'long',
+            day:'numeric'
+          });
+          const label = (mmdd === todayStr)
+            ? `🎈 Today, ${labelBase} 🎈`
+            : labelBase;
+          grouped.push({ label, matches });
+        }
+      });
+
+      if (!grouped.length) {
         window.location.href = REDIRECT_IMAGE_URL;
         return;
       }
 
-      // Render
-      const titleEl = document.getElementById("title");
-      const dateEl  = document.getElementById("date");
       const namesEl = document.getElementById("names");
-
-      titleEl.hidden = false;
-      dateEl.hidden = false;
-      dateEl.textContent = formatTodayLong();
-
       namesEl.innerHTML = "";
-      todays.forEach(r => {
-        const li = document.createElement("li");
-        li.textContent = `${r.name} - ${r.grade}`;
-        namesEl.appendChild(li);
+
+      grouped.forEach(day => {
+        const dateLine = document.createElement("div");
+        dateLine.className = "date-line";
+        dateLine.textContent = day.label;
+        namesEl.appendChild(dateLine);
+
+        for (let i = 0; i < day.matches.length; i += 2) {
+          const pair = day.matches.slice(i, i + 2)
+            .map(r => `${r.name} – ${r.grade}`)
+            .join(", ");
+          const isLast = i + 2 >= day.matches.length;
+          const line = document.createElement("div");
+          line.className = "line";
+          line.textContent = isLast ? pair : pair + ",";
+          namesEl.appendChild(line);
+        }
       });
+
+      // Clone the whole content once for seamless looping
+      const scrollContent = document.getElementById("scrollContent");
+      const clone = namesEl.cloneNode(true);
+      scrollContent.appendChild(clone);
+
+      // Adjust scroll duration (faster)
+      const totalLines = namesEl.querySelectorAll(".line, .date-line").length
+      const duration = Math.max(30, totalLines * 1);
+      document.documentElement.style.setProperty("--scroll-time", `${duration}s`);
     }
 
     init();
